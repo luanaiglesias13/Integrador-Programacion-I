@@ -4,7 +4,7 @@ ARCHIVO = "dataset de paises.csv"
 COLUMNAS = ['nombre', 'poblacion', 'superficie', 'continente']
 paises = []
 
-#Funcion crear archivo
+#============ CREAR ARCHIVO ============
 
 def crear_archivo(lista):
     try:
@@ -27,18 +27,42 @@ def crear_archivo(lista):
     except Exception as e:
         print(f"Ocurrió un error inesperado, ERROR: {e}")
 
-#Funcion validar pais
+#============ ACTUALIZAR ARCHIVO ============
 
-def validar_nombre(nombre, lista):
-    if not nombre.replace(" ", "").isalpha():
-        print("(!) Ingrese un nombre válido.")
-        return False
-    elif buscar_pais(nombre, lista) is not False:
-        print("(!) El país ya se encuentra cargado en la lista.")
+def actualizar_archivo(lista):
+    with open(ARCHIVO, "w", encoding="utf-8", newline="") as archivo:
+        escritor = csv.DictWriter(archivo, fieldnames=COLUMNAS)
+
+        escritor.writeheader()
+
+        escritor.writerows(lista)
+    print(">>ARCHIVO ACTUALIZADO<<")
+
+#============ VALIDAR ESTADO DE LA LISTA ============
+
+def validar_lista(lista):
+    if len(lista) == 0:
+        print("(!) La lista se encuentra vacía, cargue al menos 1 país para continuar.")
         return False
     return True
 
-#Buscar pais
+#============ QUITAR TÍLDES ============
+
+def quitar_tildes(texto):
+    texto = texto.lower()
+
+    remplazos = (
+      ("á", "a"),
+      ("é", "e"),
+      ("í", "i"),
+      ("ó", "o"),
+      ("ú", "u"),
+  )
+    for a, b in remplazos:
+        texto = texto.replace(a, b)
+    return texto
+
+#============ BUSCAR PAÍS ============
 
 def buscar_pais(pais, lista):
     pais = quitar_tildes(pais)
@@ -50,7 +74,18 @@ def buscar_pais(pais, lista):
             return dicc
     return False
 
-#Funcion validar numero entero
+#============ VALIDAR NOMBRE ============
+
+def validar_nombre(nombre, lista):
+    if not nombre.replace(" ", "").isalpha():
+        print("(!) Ingrese un nombre válido.")
+        return False
+    elif buscar_pais(nombre, lista) is not False:
+        print("(!) El país ya se encuentra cargado en la lista.")
+        return False
+    return True
+
+#============ VALIDAR NÚM ENTERO ============
 
 def validar_entero(numero):
     try:
@@ -64,31 +99,25 @@ def validar_entero(numero):
         print("(!) Ingrese un número entero.")
         return False
 
-#validar continente
+#============ VALIDAR CONTINENTE ============
 
 def validar_continente(continente):
+    continente = quitar_tildes(continente)
+
     if continente.lower() not in ("america", "africa", "oceania", "europa", "asia"):
         print("(!) El continente ingresado no existe.")
         return False
     return True
 
-#sacar tildes
+#============ MOSTRAR INFO ============
 
-def quitar_tildes(texto):
-    texto = texto.lower()
-    remplazos = (
-      ("á", "a"),
-      ("é", "e"),
-      ("í", "i"),
-      ("ó", "o"),
-      ("ú", "u"),
-  )
+def mostrar_info(lista):
+    for diccionario in lista:
+        print(f"País: {diccionario['nombre']} | Población: {diccionario['poblacion']} | Superficie: {diccionario['superficie']} | Continente: {diccionario['continente']}")
 
-    for a, b in remplazos:
-        texto = texto.replace(a, b)
-    return texto
-
-#===========================================================
+#=======================================
+# 1. AGREGAR PAÍS
+#=======================================
 
 def agregar_pais(lista):
     print(f"\n      「    AGREGAR PAÍS    」\n")
@@ -117,14 +146,91 @@ def agregar_pais(lista):
     while True:
         continente = input(">Continente: ").strip().title()
 
-        continente_limpio = quitar_tildes(continente)
-
-        if validar_continente(continente_limpio):
+        if validar_continente(continente):
             break
 
-#Creamos el archivo o cargamos la lista:
+    lista.append({'nombre': pais, 'poblacion': poblacion, 'superficie': superficie, 'continente': continente})
+    print(">> País agregado con éxito!")
+    actualizar_archivo(lista)
+
+#=======================================
+# 2. ACTUALIZAR DATOS
+#=======================================
+
+def actualizar_datos(lista):
+    if validar_lista(lista):
+        print(f"\n      「    ACTUALIZAR DATOS    」\n")
+
+        pais_actualizar = input("Ingrese el país del que desea actualizar sus datos: ").strip().title()
+
+        dicc_actualizar = buscar_pais(pais_actualizar, lista)
+
+        if dicc_actualizar is not False:
+
+            while True:
+                poblacion_nueva = input(">Población actualizada: ").strip()
+
+                poblacion_nueva = validar_entero(poblacion_nueva)
+
+                if poblacion_nueva is not False:
+                    dicc_actualizar['poblacion'] = poblacion_nueva
+                    print(">> Población actualizada con éxito!")
+                    break
+
+            while True:
+                superficie_actualizar = input(">Superficie actualizada: ").strip()
+
+                superficie_actualizar = validar_entero(superficie_actualizar)
+
+                if superficie_actualizar is not False:
+                    dicc_actualizar['superficie'] = superficie_actualizar
+                    print(">> Superficie actualizada con éxito!")
+                    break
+            actualizar_archivo(lista)
+        else:
+            print("(!) El país no se encuentra cargado en la lista.")
+
+#=======================================
+# 3. BÚSQUEDA
+#=======================================
+
+def busqueda(lista):
+    if validar_lista(lista):
+        print(f"\n      「    BUSQUEDA DE PAÍSES    」\n")
+
+        coincidencias = []
+
+        encontrado = False
+
+        pais_buscar = input("Qué país está buscando? ").strip().title()
+
+        dicc_buscado = buscar_pais(pais_buscar, lista)
+
+        if dicc_buscado is not False:
+            print(">>Se encontró 1 coincidencia:")
+            print(f"País: {dicc_buscado['nombre']} | Población: {dicc_buscado['poblacion']} | Superficie: {dicc_buscado['superficie']} | Continente: {dicc_buscado['continente']}")
+            encontrado = True
+
+        else:
+            pais_buscar = quitar_tildes(pais_buscar)
+            
+            for d in lista:
+                d_limpio = quitar_tildes(d['nombre'])
+                if pais_buscar in d_limpio:
+                    coincidencias.append(d)
+                    encontrado = True
+
+            if len(coincidencias) > 1:
+                print("(!) Se encontro más de una coincidencia:")
+                mostrar_info(coincidencias)
+            elif len(coincidencias) == 1:
+                print(">>Se encontró 1 coincidencia:")
+                mostrar_info(coincidencias)
+
+        if not encontrado:
+            print("(!) No se encontró el país en la lista.")
+
 crear_archivo(paises)
-print(paises) #esto hay que sacarlo
 
 opcion = ""
 
@@ -152,9 +258,9 @@ while opcion != "7":
         case "1":
             agregar_pais(paises)
         case "2":
-            pass
+            actualizar_datos(paises)
         case "3":
-            pass
+            busqueda(paises)
         case "4":
             pass
         case "5":

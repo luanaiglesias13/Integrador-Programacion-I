@@ -10,5 +10,7 @@ Funciones:
 -Validar número entero
 -Validar continente
 -Quitar tildes de palabras
+-Actualizar archivo
+-Mostrar info completa (osea todo lo que hay en el dicionario lo imprime pero más bonito)
 
 Las que te anoté son aparte de las que usamos para cada opción del menú
