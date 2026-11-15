@@ -13,7 +13,6 @@ Funciones:
 -Actualizar archivo
 -Mostrar info completa (osea todo lo que hay en el dicionario lo imprime pero más bonito)
 
-
 Te dejo una explicacion de cada punto Lu, lo hago ahora poeque despues ni yo me entiendo. 
 
 4. FILTRAR PAISES

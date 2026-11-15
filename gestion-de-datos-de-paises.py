@@ -46,7 +46,7 @@ def validar_lista(lista):
         return False
     return True
 
-#============ QUITAR TÍLDES ============
+#============ QUITAR TILDES ============
 
 def quitar_tildes(texto):
     texto = texto.lower()
@@ -114,6 +114,17 @@ def validar_continente(continente):
 def mostrar_info(lista):
     for diccionario in lista:
         print(f"País: {diccionario['nombre']} | Población: {diccionario['poblacion']} | Superficie: {diccionario['superficie']} | Continente: {diccionario['continente']}")
+
+#============ DEVOLVER INFO ESPECÍFICA ============
+
+def obtener_nombre(dicc):
+    return quitar_tildes(dicc['nombre'])
+
+def obtener_poblacion(dicc):
+    return dicc['poblacion']
+
+def obtener_superficie(dicc):
+    return dicc['superficie']              
 
 #=======================================
 # 1. AGREGAR PAÍS
@@ -196,7 +207,7 @@ def actualizar_datos(lista):
 
 def busqueda(lista):
     if validar_lista(lista):
-        print(f"\n      「    BUSQUEDA DE PAÍSES    」\n")
+        print(f"\n      「    BÚSQUEDA DE PAÍSES    」\n")
 
         coincidencias = []
 
@@ -221,7 +232,7 @@ def busqueda(lista):
                     encontrado = True
 
             if len(coincidencias) > 1:
-                print("(!) Se encontro más de una coincidencia:")
+                print("(!) Se encontró más de una coincidencia:")
                 mostrar_info(coincidencias)
             elif len(coincidencias) == 1:
                 print(">>Se encontró 1 coincidencia:")
@@ -230,150 +241,128 @@ def busqueda(lista):
         if not encontrado:
             print("(!) No se encontró el país en la lista.")
 
-crear_archivo(paises)
-
-#=======================================
-# 4. FILTRAR PAISES
-#=======================================
+#============ MOSTRAR RESULTADO DEL FILTRADO ============
 
 def mostrar_resultado_filtro(filtrados):
-    # Si la lista quedó vacía, ningún país cumplió el filtro
+    
     if len(filtrados)==0:
-        print("(!)No se encontraron paises con ese filtro.")
+        print("(!) No se encontraron países con ese filtro.")
     else:
-        # len() cuenta cuántos países se encontraron
-        print(f"Se encontraron {len(filtrados)} pais(es):")
-        # mostrar_info (de la compañera) imprime cada país
+        print(f"\n>> Se encontraron {len(filtrados)} país(es):")
         mostrar_info(filtrados)
 
+#============ PEDIR RANGO DE POBL. Y SUP. ============
 
 def pedir_rango(nombre_dato):
-    # El while True repite todo hasta que los datos sean válidos
+
     while True:
-        # PASO 1: pedir el mínimo (.strip() borra espacios sobrantes)
-        minimo= input(f"{nombre_dato} minima:").strip()
-        # validar_entero (de la compañera) devuelve el número,
-        # o False si no es entero o es menor a 1
+        minimo= input(f"{nombre_dato} mínima: ").strip()
+
         minimo = validar_entero(minimo)
-        if minimo is False:      # dato inválido: vuelve al inicio del while
+
+        if minimo is False:
             continue
 
-        # PASO 2: pedir el máximo, con la misma validación
-        maximo= input(f"{nombre_dato} maxima: ").strip()
+        maximo= input(f"{nombre_dato} máxima: ").strip()
+
         maximo = validar_entero(maximo)
+
         if maximo is False:
             continue
 
-        # PASO 3: comprobar que el rango tenga sentido
         if minimo > maximo:
-            print("(!)El minimo no puede ser mayor que el maximo")
+            print("(!) El mínimo no puede ser mayor que el máximo.")
         else:
-            # Si todo está bien, devuelve los dos valores y termina el while
             return minimo, maximo
 
+#=======================================
+# 4. FILTRAR PAÍSES
+#=======================================
+
 def filtrar_paises(lista):
-    # validar_lista avisa si no hay países cargados y no deja seguir
+
     if validar_lista(lista):
-        print(f"\nFILTRAR PAISES  \n")
+        print(f"\n      「    FILTRAR PAÍSES    」\n")
         print("1. Por continente")
-        print("2. Por rango de poblacion")
+        print("2. Por rango de población")
         print("3. Por rango de superficie")
 
-        opcion_filtro= input("Ingrese la opcion que desea realizar, 1 | 2 | 3:").strip()
-        filtrados= []            # lista vacía: acá se van guardando los que cumplen
+        opcion_filtro= input("Ingrese la opción que desea realizar, 1 | 2 | 3: ").strip()
+        filtrados= []
+
         match opcion_filtro:
 
-            # ----- FILTRO 1: por continente -----
+            #----- FILTRO 1: por continente -----
             case "1":
-                # PASO 1: pedir el continente hasta que sea uno válido
-                # (.title() lo pasa a formato "America", "Europa", etc.)
+
                 while True:
-                    continente= input("Continente: ").strip().title()
+                    continente= input(">Continente: ").strip().title()
                     if validar_continente(continente):
                         break
 
-                # PASO 2: recorrer todos los países y comparar el continente.
-                # quitar_tildes evita problemas con "América" vs "america".
                 for dicc in lista:
                     if quitar_tildes(dicc['continente']) == quitar_tildes(continente):
-                        filtrados.append(dicc)     # si coincide, lo guarda
-
-                # PASO 3: mostrar el resultado
+                        filtrados.append(dicc)
                 mostrar_resultado_filtro(filtrados)
 
-            # ----- FILTRO 2: por rango de población -----
+            #----- FILTRO 2: por rango de población -----
             case "2":
-                # PASO 1: pedir mínimo y máximo (devuelve los dos valores)
-                minimo, maximo = pedir_rango("Poblacion")
 
-                # PASO 2: guardar los países cuya población está entre los dos números
+                minimo, maximo = pedir_rango(">Población")
+
                 for dicc in lista:
                     if dicc['poblacion'] >= minimo and dicc ['poblacion'] <=maximo:
                         filtrados.append(dicc)
-
-                # PASO 3: mostrar el resultado
                 mostrar_resultado_filtro(filtrados)
 
-            # ----- FILTRO 3: por rango de superficie -----
-            # Igual que el anterior, pero con la clave 'superficie'
+            #----- FILTRO 3: por rango de superficie -----
             case "3":
-                minimo, maximo = pedir_rango("Superficie")
+                minimo, maximo = pedir_rango(">Superficie")
 
                 for dicc in lista:
                     if dicc['superficie'] >= minimo and dicc['superficie'] <= maximo:
                         filtrados.append(dicc)
                 mostrar_resultado_filtro(filtrados)
 
-            # Cualquier otra cosa que escriba el usuario es una opción inválida
             case _:
-                print ("(!)Debe ingresar una opcion dentro del rango.")
+                print ("(!) Debe ingresar una opción dentro del rango.")
 
 #=======================================
-# 5. ORDENAR PAISES
+# 5. ORDENAR PAÍSES
 #=======================================
-
-def obtener_nombre(dicc):
-    # quitar_tildes pasa a minúsculas y sin tildes, asi los paises que tengan se ordena donde corresponde y no al final
-    return quitar_tildes(dicc['nombre'])
-
-def obtener_poblacion(dicc):
-    return dicc['poblacion']
-
-def obtener_superficie(dicc):
-    return dicc['superficie']              
 
 def ordenar_paises(lista):
     if validar_lista(lista):
-        # PASO 1: mostrar el menú de criterios
-        print (f"\n ORDENAR PAISES \n")
+        print (f"\n      「    ORDENAR PAÍSES    」\n")
         print("1. Por nombre")            
-        print("2. Por poblacion")          
+        print("2. Por población")          
         print("3. Por superficie")           
 
-        opcion_ordenar= input("Ingrese la opcion que desea realizar, 1 | 2 | 3:").strip()
+        opcion_ordenar= input("Ingrese la opción que desea realizar, 1 | 2 | 3: ").strip()
 
-        # PASO 2: validar. Si no es 1, 2 ni 3, avisa y sale (return)
         if opcion_ordenar not in ("1", "2", "3"):
-            print ("(!)Debe ingresar una opcion dentro del rango.")
+            print ("(!) Debe ingresar una opción dentro del rango.")
             return
 
-        # PASO 3: preguntar el sentido del orden
-        print ("\n1. Ascendente (de menor a mayor)")  
-        print ("2. Descendente (de mayor a menor)")       
-        opcion_sentido= input("Ingrese la opcion que desea realizar, 1 | 2:").strip()
+        print("\n>De qué forma desea ordenarlos?")
+        print ("1. Ascendente (de menor a mayor)")  
+        print ("2. Descendente (de mayor a menor)")  
+
+        opcion_sentido= input("Ingrese la opción que desea realizar, 1 | 2: ").strip()
 
         if opcion_sentido not in ("1", "2"):
-            print ("(!)Debe ingresar una opcion dentro del rango.")
+            print ("(!) Debe ingresar una opción dentro del rango.")
             return
 
-        # PASO 4: guardar el sentido en una variable True/False.
-        # Si eligió "2" (descendente), vale True; si eligió "1", vale False.
-        # reverse=True hace que sorted() ordene de mayor a menor.
+        #Guardamos el sentido en una variable True/False.
+        #Si eligió "2" (descendente) vale True. Si eligió "1" (ascendente) vale False.
+        #reverse=True hace que sorted() ordene de mayor a menor.
+
         descendente = (opcion_sentido == "2")
 
-        # PASO 5: ordenar con sorted().
-        # key = la función que indica por qué dato ordenar.
-        # Va SIN paréntesis: sorted() la llama solo con cada país.
+        #key = la función que indica por qué dato ordenar.
+        #Va sin paréntesis: sorted() la llama solo con cada diccionario.
+
         match opcion_ordenar:
             case "1":
                 ordenados = sorted(lista, key=obtener_nombre, reverse= descendente)
@@ -382,8 +371,7 @@ def ordenar_paises(lista):
             case "3":
                 ordenados = sorted(lista, key=obtener_superficie, reverse= descendente)
 
-        # PASO 6: mostrar la lista ya ordenada
-        print ("Paises ordenados: ")        
+        print ("\n>> Países ordenados: ")        
         mostrar_info(ordenados)
 
 #=======================================
@@ -392,56 +380,52 @@ def ordenar_paises(lista):
 
 def mostrar_estadisticas(lista):
     if validar_lista(lista):
-        print(f"\n  ESTADÍSTICAS  \n")
+        print(f"\n      「    ESTADÍSTICAS    」\n")
 
-        # PASO 1: variables de partida.
-        # pais_mayor y pais_menor arrancan con el primer país de la lista
-        # y se van reemplazando si aparece uno con más/menos población.
         pais_mayor = lista[0]
         pais_menor = lista[0]
-        suma_poblacion = 0          # acumulador para el promedio de población
-        suma_superficie = 0         # acumulador para el promedio de superficie
-        # Diccionario contador: la clave es el continente y el valor es cuántos países tiene. Ejemplo: {"Asia": 3, "Europa": 5}
+        
+        suma_poblacion = 0          #acumulador para el promedio de población
+        suma_superficie = 0         #acumulador para el promedio de superficie
+
+        #Diccionario contador: la clave es el continente y el valor es cuántos países tiene.
         cantidad_por_continente = {}
 
-        # PASO 2: recorrer todos los países
         for dicc in lista:
-            # Comparar la población de este país con el mayor y el menor actuales
+
             if dicc['poblacion'] > pais_mayor['poblacion']:
                 pais_mayor = dicc
+
             if dicc['poblacion'] < pais_menor['poblacion']:
                 pais_menor = dicc
 
-            # Sumar los datos de este país a los acumuladores
             suma_poblacion += dicc['poblacion']
             suma_superficie += dicc['superficie']
 
-            # Contar el país en su continente:
-            # si el continente ya está en el diccionario, suma 1;
-            # si es la primera vez que aparece, lo crea con valor 1
+            #Si el continente ya está en el diccionario, suma 1;
+            #Si es la primera vez que aparece, lo crea con valor 1
             continente = quitar_tildes(dicc['continente']).title()
             if continente in cantidad_por_continente:
                 cantidad_por_continente[continente] += 1
             else:
                 cantidad_por_continente[continente] = 1
 
-        # PASO 3: calcular los promedios (suma total / cantidad de países)
         promedio_poblacion = suma_poblacion / len(lista)
         promedio_superficie = suma_superficie / len(lista)
 
-        # PASO 4: mostrar los resultados
-        # (:.2f muestra el número con 2 decimales)
-        print(f"País con mayor población: {pais_mayor['nombre']} ({pais_mayor['poblacion']})")
-        print(f"País con menor población: {pais_menor['nombre']} ({pais_menor['poblacion']})")
-        print(f"Promedio de población: {promedio_poblacion:.2f}")
-        print(f"Promedio de superficie: {promedio_superficie:.2f} km²")
-        print("Cantidad de países por continente:")
-        # Recorre el diccionario contador: continente → cantidad
+        print(f"> País con mayor población: {pais_mayor['nombre']} ({pais_mayor['poblacion']})")
+        print(f"> País con menor población: {pais_menor['nombre']} ({pais_menor['poblacion']})")
+        print(f"> Promedio de población: {promedio_poblacion:.2f}")
+        print(f"> Promedio de superficie: {promedio_superficie:.2f} km²")
+        print("\n>> Cantidad de países por continente:")
+
         for continente in cantidad_por_continente:
-            print(f"  - {continente}: {cantidad_por_continente[continente]}")
+            print(f"- {continente}: {cantidad_por_continente[continente]}")
+
+#COMIENZA EL PROGRAMA
+#=================================================================================
 
 crear_archivo(paises)
-
 
 opcion = ""
 
@@ -450,7 +434,7 @@ while opcion != "7":
     print(f"""
 ⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢
 ﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉
-        MENÚ DE GESTIÓN DE DATOS DE PAISES
+        MENÚ DE GESTIÓN DE DATOS DE PAÍSES
 ﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍﹍
 ⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣⌣
 
