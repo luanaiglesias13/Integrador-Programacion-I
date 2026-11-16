@@ -12,9 +12,14 @@ def crear_archivo(lista):
             lector = csv.DictReader(archivo)
 
             for dicc in lector:
-                dicc['poblacion'] = int(dicc['poblacion'])
-                dicc['superficie'] = int(dicc['superficie'])
-                lista.append(dicc)
+                try:
+                    dicc['poblacion'] = int(dicc['poblacion'])
+                    dicc['superficie'] = int(dicc['superficie'])
+                    lista.append(dicc)
+
+                except ValueError:
+                    raise ValueError("(!!!) Hay un error en el archivo, compruebe que todos los datos sean correctos antes de continuar.")
+    
         return lista
 
     except FileNotFoundError:
@@ -24,19 +29,22 @@ def crear_archivo(lista):
             escritor.writeheader()
         return lista
 
-    except Exception as e:
-        print(f"Ocurrió un error inesperado, ERROR: {e}")
-
 #============ ACTUALIZAR ARCHIVO ============
 
 def actualizar_archivo(lista):
-    with open(ARCHIVO, "w", encoding="utf-8", newline="") as archivo:
-        escritor = csv.DictWriter(archivo, fieldnames=COLUMNAS)
+    try:
+        with open(ARCHIVO, "w", encoding="utf-8", newline="") as archivo:
+            escritor = csv.DictWriter(archivo, fieldnames=COLUMNAS)
 
-        escritor.writeheader()
+            escritor.writeheader()
 
-        escritor.writerows(lista)
-    print(">>ARCHIVO ACTUALIZADO<<")
+            escritor.writerows(lista)
+        print(">>ARCHIVO ACTUALIZADO<<")
+
+    except FileNotFoundError:
+        print("ERROR: archivo no encontrado.")
+    except Exception as e:
+        print(f"Ocurrió un error inesperado, ERROR: {e}")
 
 #============ VALIDAR ESTADO DE LA LISTA ============
 
@@ -425,13 +433,13 @@ def mostrar_estadisticas(lista):
 #COMIENZA EL PROGRAMA
 #=================================================================================
 
-crear_archivo(paises)
+try:
+    crear_archivo(paises)
+    opcion = ""
 
-opcion = ""
+    while opcion != "7":
 
-while opcion != "7":
-
-    print(f"""
+        print(f"""
 ⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢⌢
 ﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉﹉
         MENÚ DE GESTIÓN DE DATOS DE PAÍSES
@@ -447,22 +455,26 @@ while opcion != "7":
 7. SALIR
 """)
 
-    opcion = input("Ingrese la opción que desea realizar: ").strip()
+        opcion = input("Ingrese la opción que desea realizar: ").strip()
 
-    match opcion:
-        case "1":
-            agregar_pais(paises)
-        case "2":
-            actualizar_datos(paises)
-        case "3":
-            busqueda(paises)
-        case "4":
-            filtrar_paises(paises)
-        case "5":
-            ordenar_paises(paises)
-        case "6":
-            mostrar_estadisticas(paises)
-        case "7":
-            print("Saliendo del programa...")
-        case _:
-            print("(!) Debe ingresar una opción dentro del rango.")
+        match opcion:
+            case "1":
+                agregar_pais(paises)
+            case "2":
+                actualizar_datos(paises)
+            case "3":
+                busqueda(paises)
+            case "4":
+                filtrar_paises(paises)
+            case "5":
+                ordenar_paises(paises)
+            case "6":
+                mostrar_estadisticas(paises)
+            case "7":
+                actualizar_archivo(paises)
+                print("Saliendo del programa...")
+            case _:
+                print("(!) Debe ingresar una opción dentro del rango.")
+
+except ValueError as error:
+    print(error)
